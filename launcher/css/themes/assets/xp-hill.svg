@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <!-- Recriação vetorial original de um "morro verde sob céu azul", no espírito do papel de parede clássico. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a4cc2"/>
+      <stop offset="0.38" stop-color="#3a84e2"/>
+      <stop offset="0.66" stop-color="#8fc3f1"/>
+      <stop offset="0.8" stop-color="#cfe6f8"/>
+    </linearGradient>
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86b46a"/>
+      <stop offset="1" stop-color="#4c8a37"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a4dc5c"/>
+      <stop offset="0.3" stop-color="#63b42f"/>
+      <stop offset="0.7" stop-color="#3f8f1d"/>
+      <stop offset="1" stop-color="#2b6a12"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0.32" cy="0.06" r="0.55">
+      <stop offset="0" stop-color="#d8f59a" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#d8f59a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shade" cx="0.85" cy="0.9" r="0.6">
+      <stop offset="0" stop-color="#1d4f0a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#1d4f0a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-50%" y="-80%" width="200%" height="260%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="wisp" x="-50%" y="-80%" width="200%" height="260%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <g fill="#ffffff" filter="url(#soft)">
+    <ellipse cx="1260" cy="200" rx="250" ry="70" opacity="0.95"/>
+    <ellipse cx="1470" cy="250" rx="300" ry="62" opacity="0.9"/>
+    <ellipse cx="1720" cy="160" rx="230" ry="80" opacity="0.92"/>
+    <ellipse cx="1600" cy="420" rx="280" ry="48" opacity="0.85"/>
+    <ellipse cx="330" cy="240" rx="230" ry="50" opacity="0.75"/>
+    <ellipse cx="880" cy="120" rx="200" ry="40" opacity="0.6"/>
+    <ellipse cx="230" cy="470" rx="320" ry="40" opacity="0.55"/>
+    <ellipse cx="1050" cy="430" rx="220" ry="34" opacity="0.6"/>
+  </g>
+  <g fill="#ffffff" filter="url(#wisp)" opacity="0.8">
+    <ellipse cx="1300" cy="170" rx="120" ry="30"/>
+    <ellipse cx="1690" cy="140" rx="110" ry="34"/>
+    <ellipse cx="1500" cy="235" rx="140" ry="22"/>
+  </g>
+  <path d="M1080 770 C1330 650 1640 630 1920 668 V1080 H1080Z" fill="url(#far)"/>
+  <path d="M0 650 C300 520 690 498 1000 598 C1260 680 1520 780 1920 810 V1080 H0Z" fill="url(#hill)"/>
+  <path d="M0 650 C300 520 690 498 1000 598 C1260 680 1520 780 1920 810 V1080 H0Z" fill="url(#shine)"/>
+  <path d="M0 650 C300 520 690 498 1000 598 C1260 680 1520 780 1920 810 V1080 H0Z" fill="url(#shade)"/>
+</svg>

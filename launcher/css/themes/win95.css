@@ -1,0 +1,435 @@
+/*
+ * Dizen — tema "Windows 95" (mesma linguagem do "Layout de live Kick — Windows 95").
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="win95"].
+ * Céu com nuvens; os apps ficam numa janela "Programas" (barra de título navy,
+ * menu, área branca rebaixada, barra de status com a contagem de objetos);
+ * a .topbar vira a barra de tarefas (Iniciar = "Dizen", bandeja com relógio
+ * e engrenagem) e as dicas viram botões de tarefa.
+ * Foco à moda 95: nome com seleção navy + retângulo pontilhado.
+ *
+ * Mapa (px): janela 32,28 → 1888,988 · barra de tarefas 1024..1080
+ */
+
+html[data-theme="win95"] {
+  /* biséis (as mesmas 4 camadas do layout da live) */
+  --w95-raised: inset -2px -2px #0a0a0a, inset 2px 2px #dfdfdf, inset -4px -4px #808080, inset 4px 4px #ffffff;
+  --w95-button: inset -2px -2px #0a0a0a, inset 2px 2px #ffffff, inset -4px -4px #808080, inset 4px 4px #dfdfdf;
+  --w95-pressed: inset -2px -2px #ffffff, inset 2px 2px #0a0a0a, inset -4px -4px #dfdfdf, inset 4px 4px #808080;
+  --w95-sunken: inset -2px -2px #ffffff, inset 2px 2px #808080, inset -4px -4px #dfdfdf, inset 4px 4px #0a0a0a;
+  --w95-shallow: inset -2px -2px #ffffff, inset 2px 2px #808080;
+}
+
+/*
+ * Céu com nuvens (mesmo fundo "nuvens" do layout da live).
+ *
+ * PERFORMANCE (medido na TV): cada nuvem é um radial-gradient, e o raster do
+ * Chromium M85 nesta TV é por software — um gradiente de tela cheia custa caro
+ * mesmo onde fica escondido atrás da janela, e é refeito a cada tecla. Antes,
+ * 8 nuvens de 1920x1080 pintadas em `html` E em `body` davam ~1,4 s de CPU de
+ * raster por tecla. Agora cada nuvem pinta só a própria caixa (background-size
+ * + position em px, no-repeat) e o céu existe uma única vez, no `html`.
+ * O desenho é o mesmo: caixa = centro ± 70% do raio (onde a nuvem zera).
+ *
+ * centro = (x% de 1920, y% de 1080) · tamanho = 1,4 x raio + 2
+ */
+html[data-theme="win95"] {
+  background:
+    radial-gradient(ellipse 380px 120px at 50% 50%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%) -152px 45px / 534px 170px no-repeat,
+    radial-gradient(ellipse 260px 90px at 50% 50%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 70%) -125px 390px / 366px 128px no-repeat,
+    radial-gradient(ellipse 300px 100px at 50% 50%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 70%) -115px 707px / 422px 142px no-repeat,
+    radial-gradient(ellipse 520px 90px at 50% 50%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 70%) 403px -53px / 730px 128px no-repeat,
+    radial-gradient(ellipse 460px 120px at 50% 50%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 70%) 1367px -63px / 646px 170px no-repeat,
+    radial-gradient(ellipse 600px 70px at 50% 50%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 70%) 155px 1019px / 842px 100px no-repeat,
+    radial-gradient(ellipse 520px 80px at 50% 50%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 70%) 1209px 1012px / 730px 114px no-repeat,
+    radial-gradient(ellipse 240px 110px at 50% 50%, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 70%) 1693px 354px / 338px 156px no-repeat,
+    linear-gradient(180deg, #3f8fcb 0%, #7dbde3 50%, #b7dcef 100%);
+}
+
+html[data-theme="win95"],
+html[data-theme="win95"] body {
+  font-family: "W95FA", "MS Sans Serif", "Microsoft Sans Serif", Tahoma, "DejaVu Sans", Arial, sans-serif;
+  color: #000000;
+}
+
+html[data-theme="win95"] body {
+  background: transparent;   /* o céu é do html; não pintar duas vezes */
+}
+
+html[data-theme="win95"] body {
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Janela "Programas"                                                 */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="win95"] .stage {
+  position: absolute;
+  left: 32px;
+  top: 28px;
+  width: 1856px;
+  height: 960px;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  counter-reset: w95-apps;
+  background:
+    url("assets/w95-menu.svg") no-repeat 8px 46px,
+    #c0c0c0;
+  box-shadow: var(--w95-raised), 6px 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* barra de título */
+html[data-theme="win95"] .stage::before {
+  content: "Programas - Dizen";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  height: 38px;
+  padding-left: 50px;
+  background:
+    url("assets/w95-controls.svg") no-repeat right 5px center,
+    url("assets/w95-folder.svg") no-repeat 10px center,
+    #000080;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 38px;
+  white-space: nowrap;
+}
+
+/* barra de status: conta os tiles com counter() */
+html[data-theme="win95"] .stage::after {
+  content: counter(w95-apps) " objeto(s)";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 32px;
+  padding-left: 14px;
+  box-shadow: var(--w95-shallow);
+  font-size: 19px;
+  line-height: 32px;
+}
+
+/* área branca rebaixada com os ícones; é o container de rolagem */
+html[data-theme="win95"] .grid {
+  position: absolute;
+  top: 82px;
+  left: 10px;
+  right: 10px;
+  bottom: 46px;
+  width: auto;
+  max-width: none;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: var(--w95-sunken);
+  grid-template-columns: repeat(8, 196px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 180px;
+  gap: 24px 20px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 20px;
+}
+
+html[data-theme="win95"] .tile {
+  counter-increment: w95-apps;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
+  gap: 10px;
+  outline: none;
+  transition: none;
+}
+
+html[data-theme="win95"] .tile .icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* sem ícone: uma "janelinha" 95 com a inicial */
+html[data-theme="win95"] .tile .fallback,
+html[data-theme="win95"] .tile.focus .fallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  padding-top: 16px;
+  background: linear-gradient(180deg, #000080 0, #000080 18px, #c0c0c0 18px);
+  box-shadow: var(--w95-raised);
+  color: #000000;
+  font-size: 46px;
+  font-weight: 700;
+}
+
+html[data-theme="win95"] .tile .label {
+  max-width: 190px;
+  padding: 2px 6px;
+  font-size: 21px;
+  font-weight: 400;
+}
+
+/* foco: seleção navy + retângulo pontilhado + ícone com pontilhado azul */
+html[data-theme="win95"] .tile.focus {
+  transform: none;
+  background: transparent;
+  color: #000000;
+  outline: 2px dotted #000000;
+  outline-offset: -2px;
+}
+
+html[data-theme="win95"] .tile.focus .label {
+  background: #000080;
+  color: #ffffff;
+  outline: 1px dotted #ffff00;
+  outline-offset: -1px;
+}
+
+/* foco: o ícone NÃO ganha filter (re-rasterizar o PNG a cada tecla era um dos
+   piores custos) nem padrão de marcha. O destaque fica por conta do retângulo
+   pontilhado e do nome navy — sem repintar/re-rasterizar o ícone. */
+
+html[data-theme="win95"] .empty {
+  position: absolute;
+  top: 440px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 24px;
+  color: #000000;
+}
+
+/* ------------------------------------------------------------------ */
+/* Barra de tarefas (.topbar)                                         */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="win95"] .topbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  padding: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  background: #c0c0c0;
+  box-shadow: inset 0 2px #dfdfdf, inset 0 4px #ffffff;
+}
+
+/* Iniciar = Dizen */
+html[data-theme="win95"] .brand {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  margin-top: 2px;
+  padding: 0 16px 0 12px;
+  background: #c0c0c0;
+  --mark-body: #000080;
+  --mark-eye: #ffffff;
+  box-shadow: var(--w95-button);
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* bandeja: engrenagem + relógio */
+html[data-theme="win95"] .topbar-right {
+  margin-left: auto;
+  margin-top: 2px;
+  height: 44px;
+  gap: 10px;
+  padding: 0 16px 0 6px;
+  box-shadow: var(--w95-shallow);
+}
+
+html[data-theme="win95"] .gear {
+  -webkit-box-ordinal-group: 0;
+  order: -1;
+  width: 40px;
+  height: 34px;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
+  font-size: 26px;
+  outline: none;
+}
+
+html[data-theme="win95"] .gear.focus {
+  background: #000080;
+  color: #ffffff;
+  outline: 2px dotted #000000;
+  outline-offset: 1px;
+}
+
+/* o mascote ocupa o lugar do logotipo no botão Iniciar; fonte do sistema */
+html[data-theme="win95"] .brand-word { display: none; }
+html[data-theme="win95"] .brand-text { display: inline; }
+html[data-theme="win95"] .brand-mascot {
+  width: 24px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+html[data-theme="win95"] .clock {
+  min-width: 70px;
+  text-align: right;
+  font-size: 21px;
+  color: #000000;
+}
+
+html[data-theme="win95"] .date {
+  left: auto;
+  right: 190px;
+  bottom: 18px;
+  color: #000000;
+  font-size: 16px;
+}
+
+/* dicas = botões de tarefa */
+html[data-theme="win95"] .hintbar {
+  position: fixed;
+  left: 160px;
+  bottom: 6px;
+  height: 44px;
+  z-index: 3;
+  padding: 0;
+  gap: 6px;
+  justify-content: flex-start;
+  color: #000000;
+  font-size: 19px;
+}
+
+html[data-theme="win95"] .hintbar span {
+  display: flex;
+  align-items: center;
+  width: 300px;
+  padding: 0 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: #c0c0c0;
+  box-shadow: var(--w95-button);
+}
+
+/* ------------------------------------------------------------------ */
+/* Aviso de abertura                                                  */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="win95"] .launch-status {
+  bottom: 84px;
+  border-radius: 0;
+  padding: 16px 26px;
+  background: #c0c0c0;
+  color: #000000;
+  box-shadow: var(--w95-raised), 4px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="win95"] .launch-status.error {
+  color: #a00000;
+}
+
+/* ------------------------------------------------------------------ */
+/* Configurações = caixa de diálogo com abas                          */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="win95"] .overlay {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme="win95"] .panel {
+  min-width: 760px;
+  padding: 6px 6px 22px;
+  border-radius: 0;
+  background: #c0c0c0;
+  color: #000000;
+  box-shadow: var(--w95-raised), 6px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="win95"] .panel-title {
+  height: 38px;
+  margin: 0 0 18px;
+  padding: 0 0 0 50px;
+  background:
+    url("assets/w95-controls.svg") no-repeat right 5px center,
+    url("assets/w95-folder.svg") no-repeat 10px center,
+    #000080;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 38px;
+}
+
+html[data-theme="win95"] .settings-tabs {
+  gap: 2px;
+  margin: 0 18px;
+  padding: 0;
+}
+
+html[data-theme="win95"] .settings-tab {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: 8px 22px;
+  background: #c0c0c0;
+  box-shadow: inset 2px 2px #ffffff, inset -2px 0 #0a0a0a, inset -4px 0 #808080;
+  color: #000000;
+  font-size: 20px;
+}
+
+html[data-theme="win95"] .settings-tab.active {
+  position: relative;
+  z-index: 1;
+  margin-bottom: -2px;
+  padding-top: 12px;
+  font-weight: 700;
+}
+
+html[data-theme="win95"] .settings-list {
+  margin: 0 18px;
+  padding: 4px;
+  gap: 0;
+  background: #ffffff;
+  box-shadow: var(--w95-sunken);
+}
+
+html[data-theme="win95"] .theme-item {
+  padding: 8px 14px;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
+  font-size: 21px;
+  outline: none;
+}
+
+html[data-theme="win95"] .theme-item.focus {
+  background: #000080;
+  color: #ffffff;
+  outline: 1px dotted #ffff00;
+  outline-offset: -3px;
+}
+
+html[data-theme="win95"] .theme-item.active::after {
+  color: #000080;
+}
+
+html[data-theme="win95"] .theme-item.focus.active::after {
+  color: #ffffff;
+}
+
+html[data-theme="win95"] .order-item.moving {
+  background-color: #000080;
+  color: #ffffff;
+}
+
+html[data-theme="win95"] .panel-hint {
+  margin: 16px 18px 0;
+  color: #000000;
+  font-size: 18px;
+}

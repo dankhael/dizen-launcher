@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="32" viewBox="0 0 520 32">
+  <g font-family="'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, 'DejaVu Sans', Arial, sans-serif" font-size="20" fill="#000000">
+    <text x="12" y="23"><tspan text-decoration="underline">A</tspan>rquivo</text>
+    <text x="112" y="23"><tspan text-decoration="underline">E</tspan>ditar</text>
+    <text x="196" y="23">E<tspan text-decoration="underline">x</tspan>ibir</text>
+    <text x="278" y="23"><tspan text-decoration="underline">F</tspan>avoritos</text>
+    <text x="388" y="23"><tspan text-decoration="underline">?</tspan></text>
+  </g>
+</svg>

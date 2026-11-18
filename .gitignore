@@ -1,0 +1,29 @@
+# Certificados (amarrados ao DUID de cada TV) e pacotes assinados
+*.p12
+*.cer
+*.crt
+*.pem
+*.wgt
+*.tpk
+author-signature.xml
+signature*.xml
+.manifest.tmp
+
+# Gerados na sua máquina por tools/sync-apps.sh (específicos da sua TV)
+launcher/js/apps.js
+launcher/icons/*
+!launcher/icons/sys-*.svg
+
+# Arquivos locais que você não pode redistribuir (música etc.)
+launcher/audio/
+
+# Configuração e segredos locais
+tools/.env
+.env
+
+# Build
+tools/power-monitor/obj/
+tools/power-monitor/bin/
+node_modules/
+__pycache__/
+.DS_Store

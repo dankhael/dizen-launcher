@@ -1,0 +1,267 @@
+/*
+ * Dizen — tema "OLED puro": só o que está em foco acende.
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="oled"].
+ * Preto absoluto, sem cartões nem preenchimentos claros (economia e nada de
+ * burn-in). Ícones apagados a 50%; o foco acende o ícone, o nome e um aro
+ * branco fino. Relógio ambiente fino no centro do topo. O conteúdo "deriva"
+ * alguns pixels a cada poucos minutos (pixel shift) para não marcar a tela.
+ *
+ * Mapa (px): topo 0..150 · grid 160..952 · dicas ~1010
+ */
+
+html[data-theme="oled"],
+html[data-theme="oled"] body {
+  background: #000000;
+  font-family: "SamsungOne", "Tizen Sans", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* pixel shift anti burn-in (1 px por minuto, ida e volta em 12 min): feito por
+   setInterval em main.js (syncThemeTimers), que aplica um transform inline em
+   .topbar/.stage/.hintbar. NÃO use animação CSS infinita aqui: nesta TV ela
+   prende a thread do compositor em 100% de um núcleo com a tela parada. */
+
+/* ---- topo ---------------------------------------------------------- */
+
+html[data-theme="oled"] .topbar {
+  position: relative;
+  align-items: center;
+  height: 150px;
+  padding: 0 128px;
+}
+
+html[data-theme="oled"] .brand {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  /* marca apagada como o resto: só o foco acende */
+  --mark-body: var(--text-dim);
+  --mark-eye: #000000;
+  --mark-dot: var(--text-dim);
+}
+
+html[data-theme="oled"] .brand-word {
+  width: 3.6em;
+  height: 1.18em;
+}
+
+html[data-theme="oled"] .brand-mascot {
+  width: 1.2em;
+  height: 1.62em;
+  margin-right: 0.6em;
+}
+
+/* relógio ambiente no centro */
+html[data-theme="oled"] .clock {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 76px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  color: #d8d8d8;
+  pointer-events: none;
+}
+
+html[data-theme="oled"] .gear {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #262626;
+  color: var(--text-dim);
+  font-size: 30px;
+  outline: none;
+  transition: box-shadow 0.15s ease-out, color 0.15s ease-out, transform 0.15s ease-out;
+}
+
+html[data-theme="oled"] .gear.focus {
+  background: transparent;
+  color: #ffffff;
+  outline: none;
+  transform: scale(1.1);
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+/* ---- grid: ícones soltos, sem cartão ------------------------------- */
+
+html[data-theme="oled"] .stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10px 0 0;
+}
+
+/* 3 linhas (3x200 + 2x44 = 688) + 2x44 de respiro */
+html[data-theme="oled"] .grid {
+  width: 1752px;
+  max-width: none;
+  height: 776px;
+  padding: 44px;
+  grid-template-columns: repeat(7, 200px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 200px;
+  gap: 44px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 44px;
+  scroll-behavior: smooth;
+}
+
+html[data-theme="oled"] .tile {
+  width: auto;
+  height: auto;
+  border-radius: var(--radius);
+  background: transparent;
+  gap: 14px;
+  outline: none;
+  transition: transform 0.16s ease-out, box-shadow 0.16s ease-out;
+}
+
+html[data-theme="oled"] .tile .icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  background: transparent;
+  opacity: 0.5;
+  transition: opacity 0.16s ease-out;
+}
+
+html[data-theme="oled"] .tile .fallback {
+  width: 120px;
+  height: 120px;
+  border-radius: 30px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #2a2a2a;
+  color: #7a7a7a;
+  font-size: 54px;
+  font-weight: 300;
+}
+
+html[data-theme="oled"] .tile .label {
+  max-width: 190px;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+html[data-theme="oled"] .tile.focus {
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  transform: scale(1.06);
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+html[data-theme="oled"] .tile.focus .icon {
+  opacity: 1;
+}
+
+html[data-theme="oled"] .tile.focus .fallback {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #ffffff;
+  color: #ffffff;
+}
+
+html[data-theme="oled"] .tile.focus .label {
+  color: #ffffff;
+}
+
+html[data-theme="oled"] .empty {
+  align-self: center;
+}
+
+/* ---- dicas --------------------------------------------------------- */
+
+html[data-theme="oled"] .hintbar {
+  gap: 40px;
+  padding: 0 0 44px;
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: #4a4a4a;
+}
+
+/* ---- aviso de abertura --------------------------------------------- */
+
+html[data-theme="oled"] .launch-status {
+  border-radius: 999px;
+  background: #000000;
+  box-shadow: inset 0 0 0 1px #333333;
+  padding: 14px 30px;
+}
+
+/* ---- configurações: contorno, nunca preenchimento ------------------- */
+
+html[data-theme="oled"] .overlay {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+html[data-theme="oled"] .panel {
+  min-width: 700px;
+  padding: 40px 48px 34px;
+  border-radius: 30px;
+  background: #000000;
+  box-shadow: inset 0 0 0 1px #262626;
+}
+
+html[data-theme="oled"] .panel-title {
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+html[data-theme="oled"] .settings-tabs {
+  gap: 28px;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+html[data-theme="oled"] .settings-tab {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+  padding: 10px 2px 14px;
+  background: transparent;
+  color: var(--text-dim);
+}
+
+html[data-theme="oled"] .settings-tab.active {
+  border-bottom-color: #ffffff;
+  color: #ffffff;
+}
+
+html[data-theme="oled"] .theme-item {
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px #1c1c1c;
+  color: #9a9a9a;
+  outline: none;
+}
+
+html[data-theme="oled"] .theme-item.focus {
+  background: transparent;
+  color: #ffffff;
+  outline: none;
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+html[data-theme="oled"] .theme-item.active::after,
+html[data-theme="oled"] .theme-item.focus.active::after {
+  color: #ffffff;
+}
+
+html[data-theme="oled"] .order-item.moving {
+  box-shadow: inset 0 0 0 3px #ffffff, 0 0 0 4px #000000, 0 0 0 6px #6a6a6a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="oled"] .grid { scroll-behavior: auto; }
+}

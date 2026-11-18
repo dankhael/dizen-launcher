@@ -1,0 +1,296 @@
+/*
+ * Dizen — tema "Nord": paleta ártica (nordtheme.com).
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="nord"].
+ * Layout de lista: cards 380x120 em 4 colunas, ícone à esquerda e nome à
+ * direita, 5 linhas visíveis. Apps sem ícone ganham cores Aurora/Frost.
+ * Foco = card claro (nord2), aro Frost e leve elevação.
+ *
+ * Paleta: nord0 #2e3440 · nord1 #3b4252 · nord2 #434c5e · nord3 #4c566a
+ *         nord4 #d8dee9 · nord6 #eceff4 · nord7 #8fbcbb · nord8 #88c0d0
+ *         nord9 #81a1c1 · nord10 #5e81ac · nord11 #bf616a · nord12 #d08770
+ *         nord13 #ebcb8b · nord14 #a3be8c · nord15 #b48ead
+ *
+ * Mapa (px): topo 0..124 · grid 140..980 · dicas ~1010
+ */
+
+html[data-theme="nord"],
+html[data-theme="nord"] body {
+  font-family: "Inter", "SamsungOne", "Tizen Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-theme="nord"] body {
+  background: transparent;
+}
+
+/*
+ * PERFORMANCE (medido na TV): o raster do Chromium M85 nesta TV é por software
+ * e gradiente/SVG de tela cheia é caro — e era refeito a cada tecla, porque
+ * vivia na mesma camada dos tiles (e duas vezes: em `html` e em `body`).
+ * O fundo agora fica num pseudo-elemento fixo com camada própria no compositor
+ * (will-change: transform): é rasterizado uma vez e a navegação não toca nele.
+ * É UMA camada de tela cheia (~8 MB) — não espalhe will-change por tiles.
+ */
+html[data-theme="nord"]::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 50% at 100% 0%, rgba(180, 142, 173, 0.14) 0%, rgba(180, 142, 173, 0) 100%),
+    radial-gradient(ellipse 50% 50% at 0% 100%, rgba(143, 188, 187, 0.12) 0%, rgba(143, 188, 187, 0) 100%),
+    linear-gradient(180deg, #2e3440 0%, #2a2f3a 100%);
+  will-change: transform;
+}
+
+/* ---- topo ---------------------------------------------------------- */
+
+html[data-theme="nord"] .topbar {
+  align-items: center;
+  height: 124px;
+  padding: 40px 152px 0;
+}
+
+html[data-theme="nord"] .brand {
+  font-size: 40px;
+  font-weight: 700;
+  color: #eceff4;
+  --mark-body: #88c0d0;
+  --mark-eye: #2e3440;
+  --mark-dot: #88c0d0;
+}
+
+html[data-theme="nord"] .clock {
+  font-size: 28px;
+  font-weight: 500;
+  color: #d8dee9;
+}
+
+html[data-theme="nord"] .gear {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: #3b4252;
+  color: #d8dee9;
+  font-size: 30px;
+  outline: none;
+  transition: transform 0.15s ease-out, background 0.15s ease-out;
+}
+
+html[data-theme="nord"] .gear.focus {
+  background: #88c0d0;
+  color: #2e3440;
+  outline: none;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(136, 192, 208, 0.3), 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- grid em lista ------------------------------------------------- */
+
+html[data-theme="nord"] .stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 0 0;
+}
+
+/* 5 linhas (5x120 + 4x28 = 712) + 2x32 de respiro */
+html[data-theme="nord"] .grid {
+  width: 1680px;
+  max-width: none;
+  height: 776px;
+  padding: 32px;
+  grid-template-columns: repeat(4, 380px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 120px;
+  gap: 28px 32px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 32px;
+  scroll-behavior: smooth;
+}
+
+/* cores por posição (Aurora/Frost) para o ícone-letra */
+html[data-theme="nord"] .tile:nth-child(8n+1) { --nd: #88c0d0; }
+html[data-theme="nord"] .tile:nth-child(8n+2) { --nd: #b48ead; }
+html[data-theme="nord"] .tile:nth-child(8n+3) { --nd: #a3be8c; }
+html[data-theme="nord"] .tile:nth-child(8n+4) { --nd: #d08770; }
+html[data-theme="nord"] .tile:nth-child(8n+5) { --nd: #81a1c1; }
+html[data-theme="nord"] .tile:nth-child(8n+6) { --nd: #ebcb8b; }
+html[data-theme="nord"] .tile:nth-child(8n+7) { --nd: #bf616a; }
+html[data-theme="nord"] .tile:nth-child(8n+8) { --nd: #8fbcbb; }
+
+html[data-theme="nord"] .tile {
+  width: auto;
+  height: auto;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 22px;
+  padding: 0 22px;
+  border-radius: var(--radius);
+  background: #3b4252;
+  box-shadow: inset 0 0 0 1px rgba(236, 239, 244, 0.05);
+  outline: none;
+  transition: transform 0.15s ease-out, background 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+html[data-theme="nord"] .tile .icon {
+  flex: 0 0 80px;
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  background: transparent;
+}
+
+html[data-theme="nord"] .tile .fallback {
+  flex: 0 0 80px;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: var(--nd, #88c0d0);
+  color: #2e3440;
+  font-size: 40px;
+  font-weight: 800;
+}
+
+html[data-theme="nord"] .tile .label {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  text-align: left;
+  font-size: 26px;
+  font-weight: 600;
+  color: #d8dee9;
+}
+
+html[data-theme="nord"] .tile.focus {
+  transform: scale(1.04);
+  background: #434c5e;
+  color: #eceff4;
+  outline: none;
+  box-shadow: 0 0 0 4px #88c0d0, 0 18px 34px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="nord"] .tile.focus .label {
+  color: #eceff4;
+}
+
+html[data-theme="nord"] .tile.focus .fallback {
+  background: var(--nd, #88c0d0);
+  color: #2e3440;
+}
+
+html[data-theme="nord"] .empty {
+  align-self: center;
+}
+
+/* ---- dicas --------------------------------------------------------- */
+
+html[data-theme="nord"] .hintbar {
+  gap: 14px;
+  padding: 0 0 40px;
+  font-size: 20px;
+  color: #9aa5b8;
+}
+
+html[data-theme="nord"] .hintbar span {
+  padding: 8px 18px;
+  border-radius: 12px;
+  background: #3b4252;
+}
+
+/* ---- aviso de abertura --------------------------------------------- */
+
+html[data-theme="nord"] .launch-status {
+  border-radius: 16px;
+  background: #3b4252;
+  box-shadow: inset 4px 0 0 #a3be8c, 0 16px 34px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="nord"] .launch-status.error {
+  color: #eceff4;
+  box-shadow: inset 4px 0 0 #bf616a, 0 16px 34px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- configurações ------------------------------------------------- */
+
+html[data-theme="nord"] .overlay {
+  background: rgba(36, 41, 51, 0.72);
+}
+
+html[data-theme="nord"] .panel {
+  min-width: 720px;
+  padding: 40px 46px 34px;
+  border-radius: 26px;
+  background: #3b4252;
+  box-shadow: inset 0 0 0 1px #4c566a, 0 36px 80px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="nord"] .panel-title {
+  font-size: 32px;
+  color: #eceff4;
+}
+
+html[data-theme="nord"] .settings-tabs {
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  background: #2e3440;
+}
+
+html[data-theme="nord"] .settings-tab {
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #9aa5b8;
+  font-weight: 600;
+}
+
+html[data-theme="nord"] .settings-tab.active {
+  background: #434c5e;
+  color: #88c0d0;
+}
+
+html[data-theme="nord"] .theme-item {
+  border-radius: 12px;
+  background: #434c5e;
+  color: #e5e9f0;
+  outline: none;
+}
+
+html[data-theme="nord"] .theme-item.focus {
+  background: #88c0d0;
+  color: #2e3440;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(136, 192, 208, 0.3);
+}
+
+html[data-theme="nord"] .theme-item.active::after {
+  color: #a3be8c;
+}
+
+html[data-theme="nord"] .theme-item.focus.active::after {
+  color: #2e3440;
+}
+
+html[data-theme="nord"] .order-item.moving {
+  background: #ebcb8b;
+  color: #2e3440;
+  box-shadow: 0 0 0 3px rgba(235, 203, 139, 0.35);
+}
+
+html[data-theme="nord"] .panel-hint {
+  color: #9aa5b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="nord"] .grid { scroll-behavior: auto; }
+}

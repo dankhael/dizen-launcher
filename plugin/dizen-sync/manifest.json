@@ -1,0 +1,10 @@
+{
+  "id": "dizen-sync",
+  "name": "Dizen Sync",
+  "version": "1.4.0",
+  "description": "Mantém a lista de apps, ícones, canais e aparelhos HDMI do launcher Dizen em dia, de dentro da TV.",
+  "author": "dankhael",
+  "apiVersion": 1,
+  "permissions": ["exec"],
+  "main": "index.js"
+}

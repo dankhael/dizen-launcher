@@ -1,0 +1,376 @@
+/*
+ * Dizen — tema "CRT retro": terminal de fósforo verde.
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="retro"].
+ * Fonte monoespaçada com brilho de fósforo, scanlines + vinheta por cima de
+ * tudo, cantos retos. Ícones viram monocromáticos verdes; o foco INVERTE
+ * (fundo verde, texto escuro) como a seleção de um terminal, com "> " no nome.
+ * Dicas como a barra de teclas F1/F2/F3 do Norton Commander.
+ *
+ * Mapa (px): topo 0..120 · grid 136..852 · barra F-keys no rodapé
+ */
+
+html[data-theme="retro"],
+html[data-theme="retro"] body {
+  font-family: "VT323", "IBM Plex Mono", "DejaVu Sans Mono", "Liberation Mono",
+    "Courier New", monospace;
+  color: var(--text);
+  text-shadow: 0 0 6px var(--crt-glow);
+}
+
+html[data-theme="retro"] body {
+  background: transparent;
+}
+
+/*
+ * PERFORMANCE (medido na TV): o raster do Chromium M85 nesta TV é por software
+ * e gradiente/SVG de tela cheia é caro — e era refeito a cada tecla, porque
+ * vivia na mesma camada dos tiles (e duas vezes: em `html` e em `body`).
+ * O fundo agora fica num pseudo-elemento fixo com camada própria no compositor
+ * (will-change: transform): é rasterizado uma vez e a navegação não toca nele.
+ * É UMA camada de tela cheia (~8 MB) — não espalhe will-change por tiles.
+ */
+html[data-theme="retro"]::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, #052b0c 0%, var(--bg) 100%);
+  will-change: transform;
+}
+
+/* scanlines + vinheta (fixos, por cima de tudo, não interceptam cliques) */
+html[data-theme="retro"] body::before,
+html[data-theme="retro"] body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+html[data-theme="retro"] body::before {
+  background: repeating-linear-gradient(180deg,
+    rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.30) 2px, rgba(0, 0, 0, 0.30) 4px);
+}
+
+html[data-theme="retro"] body::after {
+  background: radial-gradient(ellipse 75% 70% at 50% 50%,
+    rgba(0, 0, 0, 0) 62%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+/* ---- topo: prompt ---------------------------------------------------- */
+
+html[data-theme="retro"] .topbar {
+  align-items: center;
+  height: 120px;
+  padding: 36px 120px 0;
+}
+
+html[data-theme="retro"] .brand {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+html[data-theme="retro"] .brand::before {
+  content: "C:\005C> ";
+  color: var(--text-dim);
+}
+
+/* o "ponto" da marca vira o cursor piscando */
+/* CRT fala na fonte do terminal: texto no lugar do lettering */
+html[data-theme="retro"] .brand-word { display: none; }
+html[data-theme="retro"] .brand-text { display: inline; }
+html[data-theme="retro"] .brand-mascot { order: 1; margin-right: 0.35em; }
+html[data-theme="retro"] .brand-text { order: 2; }
+html[data-theme="retro"] .brand::before { order: 0; white-space: pre; }
+
+html[data-theme="retro"] .brand::after {
+  content: "";
+  display: block;
+  order: 3;
+  width: 20px;
+  height: 34px;
+  margin-left: 10px;
+  border-radius: 0;
+  vertical-align: -4px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--crt-glow);
+  will-change: opacity;   /* piscar = só troca de opacidade no compositor, sem raster */
+}
+
+/* O piscar vem de um setInterval em main.js (syncThemeTimers), NÃO de uma
+   animação CSS infinita: nesta TV ela prende a thread do compositor em 100%. */
+html[data-theme="retro"] .brand.cursor-off::after {
+  opacity: 0;
+}
+
+html[data-theme="retro"] .clock {
+  font-size: 32px;
+  color: var(--text);
+}
+
+html[data-theme="retro"] .clock::before { content: "[ "; color: var(--text-dim); }
+html[data-theme="retro"] .clock::after  { content: " ]"; color: var(--text-dim); }
+
+html[data-theme="retro"] .gear {
+  width: 64px;
+  height: 56px;
+  border-radius: 0;
+  border: 2px solid var(--crt-dim);
+  background: transparent;
+  color: var(--text);
+  font-size: 30px;
+  text-shadow: inherit;
+  outline: none;
+}
+
+html[data-theme="retro"] .gear.focus {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--tile-focus-text);
+  text-shadow: none;
+  outline: none;
+  box-shadow: 0 0 22px var(--crt-glow);
+}
+
+/* ---- grid: caixas de terminal --------------------------------------- */
+
+html[data-theme="retro"] .stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 0 0;
+}
+
+/* 3 linhas (3x200 + 2x28 = 656) + 2x30 de respiro */
+html[data-theme="retro"] .grid {
+  width: 1700px;
+  max-width: none;
+  height: 716px;
+  padding: 30px;
+  grid-template-columns: repeat(6, 250px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 200px;
+  gap: 28px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 30px;
+}
+
+html[data-theme="retro"] .tile {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  border: 2px solid var(--crt-dim);
+  background: rgba(51, 255, 102, 0.035);
+  gap: 14px;
+  outline: none;
+  transition: none;
+}
+
+/* ícone monocromático verde */
+html[data-theme="retro"] .tile .icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 0;
+  background: transparent;
+  -webkit-filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4) brightness(0.9);
+  filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4) brightness(0.9);
+}
+
+html[data-theme="retro"] .tile .fallback {
+  width: 100px;
+  height: 100px;
+  border-radius: 0;
+  border: 2px dashed var(--crt-dim);
+  background: transparent;
+  color: var(--text);
+  font-size: 60px;
+  font-weight: 700;
+}
+
+html[data-theme="retro"] .tile .label {
+  max-width: 226px;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* foco = seleção invertida */
+html[data-theme="retro"] .tile.focus {
+  transform: none;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--tile-focus-text);
+  text-shadow: none;
+  outline: none;
+  box-shadow: 0 0 26px 2px var(--crt-glow);
+}
+
+html[data-theme="retro"] .tile.focus .label::before {
+  content: "> ";
+}
+
+html[data-theme="retro"] .tile.focus .icon {
+  -webkit-filter: grayscale(1) brightness(0.15);
+  filter: grayscale(1) brightness(0.15);
+}
+
+html[data-theme="retro"] .tile.focus .fallback {
+  border-color: var(--tile-focus-text);
+  background: transparent;
+  color: var(--tile-focus-text);
+}
+
+html[data-theme="retro"] .empty {
+  align-self: center;
+  font-size: 30px;
+  text-transform: uppercase;
+}
+
+html[data-theme="retro"] .empty::before {
+  content: "ERRO: ";
+}
+
+/* ---- barra de teclas F1/F2/F3 --------------------------------------- */
+
+html[data-theme="retro"] .hintbar {
+  gap: 0;
+  justify-content: flex-start;
+  padding: 0 120px 46px;
+  font-size: 22px;
+  text-shadow: none;
+}
+
+html[data-theme="retro"] .hintbar span {
+  margin-right: 18px;
+  padding: 4px 16px 4px 0;
+  background: var(--crt-dim);
+  color: #c8ffd6;
+}
+
+html[data-theme="retro"] .hintbar span::before {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 0 10px;
+  background: #000000;
+  color: var(--accent);
+}
+
+html[data-theme="retro"] .hintbar span:nth-child(1)::before { content: "F1"; }
+html[data-theme="retro"] .hintbar span:nth-child(2)::before { content: "F2"; }
+html[data-theme="retro"] .hintbar span:nth-child(3)::before { content: "F3"; }
+
+/* ---- aviso de abertura --------------------------------------------- */
+
+html[data-theme="retro"] .launch-status {
+  border-radius: 0;
+  border: 2px solid var(--accent);
+  background: var(--bg-panel);
+  box-shadow: 0 0 22px var(--crt-glow);
+  text-transform: uppercase;
+}
+
+html[data-theme="retro"] .launch-status.error {
+  border-color: #ff5a3c;
+  color: #ff8a6e;
+  text-shadow: 0 0 6px rgba(255, 90, 60, 0.6);
+}
+
+/* ---- configurações: janela de borda dupla --------------------------- */
+
+html[data-theme="retro"] .overlay {
+  background: rgba(0, 6, 0, 0.78);
+}
+
+html[data-theme="retro"] .panel {
+  min-width: 760px;
+  padding: 36px 44px 30px;
+  border-radius: 0;
+  border: 6px double var(--accent);
+  box-shadow: 0 0 40px var(--crt-glow);
+}
+
+html[data-theme="retro"] .panel-title {
+  text-align: center;
+  font-size: 32px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+html[data-theme="retro"] .panel-title::before { content: "== "; color: var(--text-dim); }
+html[data-theme="retro"] .panel-title::after  { content: " =="; color: var(--text-dim); }
+
+html[data-theme="retro"] .settings-tab {
+  border: 2px solid var(--crt-dim);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-dim);
+  text-shadow: inherit;
+  text-transform: uppercase;
+}
+
+html[data-theme="retro"] .settings-tab::before { content: "[ "; }
+html[data-theme="retro"] .settings-tab::after  { content: " ]"; }
+
+html[data-theme="retro"] .settings-tab.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+html[data-theme="retro"] .theme-item {
+  border-radius: 0;
+  background: transparent;
+  outline: none;
+  text-transform: uppercase;
+}
+
+html[data-theme="retro"] .theme-item::before {
+  content: "  ";
+  white-space: pre;
+}
+
+html[data-theme="retro"] .theme-item.focus {
+  background: var(--accent);
+  color: var(--tile-focus-text);
+  text-shadow: none;
+  outline: none;
+}
+
+html[data-theme="retro"] .theme-item.focus::before {
+  content: "> ";
+}
+
+html[data-theme="retro"] .theme-item.active::after {
+  content: " [*]";
+}
+
+html[data-theme="retro"] .order-item.moving {
+  box-shadow: inset 0 0 0 3px #000000;
+}
+
+html[data-theme="retro"] .panel-hint {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="retro"] .brand.cursor-off::after {
+    opacity: 1;
+  }
+}

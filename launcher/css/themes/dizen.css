@@ -1,0 +1,269 @@
+/*
+ * Dizen — tema "Dizen (padrão)": a identidade da marca.
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="dizen"].
+ * Azul-marinho profundo + ciano. Grid 6 colunas de cards 240x220 (3 linhas
+ * visíveis, rola na vertical); foco = card sobe, aro ciano com brilho.
+ *
+ * Mapa (px): topo 0..124 · grid 140..968 · dicas ~1000..1044
+ */
+
+html[data-theme="dizen"],
+html[data-theme="dizen"] body {
+  font-family: "SamsungOne", "Tizen Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-theme="dizen"] body {
+  background: transparent;
+}
+
+/*
+ * PERFORMANCE (medido na TV): o raster do Chromium M85 nesta TV é por software
+ * e gradiente/SVG de tela cheia é caro — e era refeito a cada tecla, porque
+ * vivia na mesma camada dos tiles (e duas vezes: em `html` e em `body`).
+ * O fundo agora fica num pseudo-elemento fixo com camada própria no compositor
+ * (will-change: transform): é rasterizado uma vez e a navegação não toca nele.
+ * É UMA camada de tela cheia (~8 MB) — não espalhe will-change por tiles.
+ */
+html[data-theme="dizen"]::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(34, 211, 238, 0.10) 0%, rgba(34, 211, 238, 0) 100%),
+    radial-gradient(ellipse 60% 60% at 100% 100%, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 100%),
+    var(--bg);
+  will-change: transform;
+}
+
+/* ---- topo ---------------------------------------------------------- */
+
+html[data-theme="dizen"] .topbar {
+  align-items: center;
+  height: 124px;
+  padding: 40px 150px 0;
+}
+
+html[data-theme="dizen"] .brand {
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+html[data-theme="dizen"] .topbar-right {
+  gap: 24px;
+}
+
+html[data-theme="dizen"] .clock {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+html[data-theme="dizen"] .gear {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--tile);
+  box-shadow: inset 0 0 0 1px var(--dz-edge);
+  color: var(--text-dim);
+  font-size: 32px;
+  outline: none;
+  transition: transform 0.15s ease-out, background 0.15s ease-out, color 0.15s ease-out;
+}
+
+html[data-theme="dizen"] .gear.focus {
+  background: var(--accent);
+  color: var(--tile-focus-text);
+  outline: none;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.35), 0 0 30px 6px var(--dz-glow);
+}
+
+/* ---- grid ---------------------------------------------------------- */
+
+html[data-theme="dizen"] .stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 0 0;
+}
+
+/* 3 linhas (3x220 + 2x36 = 732) + 2x48 de respiro para o brilho do foco */
+html[data-theme="dizen"] .grid {
+  width: 1716px;
+  max-width: none;
+  height: 828px;
+  padding: 48px;
+  grid-template-columns: repeat(6, 240px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 220px;
+  gap: 36px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 48px;
+  scroll-behavior: smooth;
+}
+
+html[data-theme="dizen"] .tile {
+  width: auto;
+  height: auto;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #17223a 0%, #111a2b 100%);
+  box-shadow: inset 0 0 0 1px var(--dz-edge), 0 10px 24px rgba(0, 0, 0, 0.35);
+  gap: 16px;
+  outline: none;
+  transition: transform 0.16s ease-out, box-shadow 0.16s ease-out, background 0.16s ease-out;
+}
+
+html[data-theme="dizen"] .tile .icon {
+  width: 112px;
+  height: 112px;
+  border-radius: 26px;
+  background: transparent;
+}
+
+html[data-theme="dizen"] .tile .fallback {
+  width: 112px;
+  height: 112px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.20) 0%, rgba(99, 102, 241, 0.22) 100%);
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.18);
+  color: #bdf3fb;
+  font-size: 54px;
+  font-weight: 700;
+}
+
+html[data-theme="dizen"] .tile .label {
+  max-width: 212px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+html[data-theme="dizen"] .tile.focus {
+  transform: scale(1.07);
+  background: linear-gradient(180deg, #1d2d4b 0%, #15223b 100%);
+  color: var(--text);
+  outline: none;
+  box-shadow:
+    0 0 0 4px var(--accent),
+    0 0 34px 6px var(--dz-glow),
+    0 26px 40px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dizen"] .tile.focus .label {
+  color: #ffffff;
+}
+
+html[data-theme="dizen"] .tile.focus .fallback {
+  background: var(--accent);
+  box-shadow: none;
+  color: var(--tile-focus-text);
+}
+
+html[data-theme="dizen"] .empty {
+  align-self: center;
+  font-size: 30px;
+}
+
+/* ---- dicas: teclas em pílulas -------------------------------------- */
+
+html[data-theme="dizen"] .hintbar {
+  gap: 16px;
+  padding: 0 0 40px;
+  font-size: 20px;
+}
+
+html[data-theme="dizen"] .hintbar span {
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px var(--dz-edge);
+}
+
+/* ---- aviso de abertura --------------------------------------------- */
+
+html[data-theme="dizen"] .launch-status {
+  border-radius: 16px;
+  border-left: 4px solid var(--accent);
+  box-shadow: inset 0 0 0 1px var(--dz-edge), 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- configurações ------------------------------------------------- */
+
+html[data-theme="dizen"] .overlay {
+  background: rgba(3, 6, 12, 0.72);
+}
+
+html[data-theme="dizen"] .panel {
+  min-width: 760px;
+  padding: 40px 48px 34px;
+  border-radius: 30px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(34, 211, 238, 0.10),
+    0 40px 90px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="dizen"] .panel-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+/* abas como controle segmentado */
+html[data-theme="dizen"] .settings-tabs {
+  gap: 6px;
+  padding: 6px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px var(--dz-edge);
+}
+
+html[data-theme="dizen"] .settings-tab {
+  border: none;
+  border-radius: 13px;
+  background: transparent;
+  font-weight: 600;
+}
+
+html[data-theme="dizen"] .settings-tab.active {
+  background: rgba(34, 211, 238, 0.14);
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: #ffffff;
+}
+
+html[data-theme="dizen"] .theme-item {
+  padding: 16px 22px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px var(--dz-edge);
+  outline: none;
+  transition: transform 0.12s ease-out;
+}
+
+html[data-theme="dizen"] .theme-item.focus {
+  outline: none;
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.35), 0 0 24px 2px var(--dz-glow);
+}
+
+html[data-theme="dizen"] .order-item.moving {
+  box-shadow: inset 0 0 0 3px #04141a, 0 0 0 3px #ffffff, 0 0 24px 2px var(--dz-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="dizen"] .grid { scroll-behavior: auto; }
+  html[data-theme="dizen"] .tile,
+  html[data-theme="dizen"] .gear,
+  html[data-theme="dizen"] .theme-item { transition: none; }
+}

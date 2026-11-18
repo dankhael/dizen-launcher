@@ -1,0 +1,533 @@
+/*
+ * Dizen — tema "Windows XP" (Luna azul clássico, não a versão da live).
+ *
+ * Alvo: 1920x1080, Chromium M85 (Tizen 6.5). Escopado por html[data-theme="xp"].
+ * Papel de parede com o morro verde; os apps ficam numa janela do Explorer
+ * ("Programas"): barra de título Luna, menu, painel de tarefas azul à esquerda
+ * (onde ficam as dicas do controle), área branca de ícones e barra de status.
+ * A .topbar vira a barra de tarefas azul com o botão verde (Dizen), um botão
+ * de tarefa "Programas" e a bandeja (engrenagem + relógio). O aviso de
+ * abertura é um balão amarelo da bandeja.
+ *
+ * Papel de parede: se existir assets/bliss.jpg (a foto original, que NÃO vai
+ * para o git — ver .gitignore), ela é usada; senão, a recriação vetorial
+ * assets/xp-hill.svg aparece por baixo.
+ *
+ * Mapa (px): janela 150,40 → 1770,960 · barra de tarefas 1024..1080
+ */
+
+html[data-theme="xp"],
+html[data-theme="xp"] body {
+  font-family: Tahoma, Verdana, "Segoe UI", "DejaVu Sans", "SamsungOne", Arial, sans-serif;
+  color: #000000;
+}
+
+html[data-theme="xp"] body {
+  display: block;
+}
+
+html[data-theme="xp"] body {
+  background: transparent;
+}
+
+/*
+ * PERFORMANCE (medido na TV): o raster do Chromium M85 nesta TV é por software
+ * e gradiente/SVG de tela cheia é caro — e era refeito a cada tecla, porque
+ * vivia na mesma camada dos tiles (e duas vezes: em `html` e em `body`).
+ * O fundo agora fica num pseudo-elemento fixo com camada própria no compositor
+ * (will-change: transform): é rasterizado uma vez e a navegação não toca nele.
+ * É UMA camada de tela cheia (~8 MB) — não espalhe will-change por tiles.
+ */
+html[data-theme="xp"]::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    url("assets/bliss.jpg") center / cover no-repeat,
+    url("assets/xp-hill.svg") center / cover no-repeat,
+    #3a84e2;
+  will-change: transform;
+}
+
+/* ------------------------------------------------------------------ */
+/* Janela do Explorer                                                 */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="xp"] .stage {
+  position: absolute;
+  left: 150px;
+  top: 40px;
+  width: 1620px;
+  height: 920px;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  counter-reset: xp-apps;
+  border-radius: 10px 10px 0 0;
+  background:
+    /* menu */
+    url("assets/xp-menu.svg") no-repeat 4px 44px,
+    linear-gradient(180deg, #ece9d8 0, #ece9d8 34px, #d6d3c6 34px, #d6d3c6 36px) no-repeat 4px 44px / calc(100% - 8px) 36px,
+    /* painel de tarefas */
+    linear-gradient(180deg, #7ba2e7 0%, #6375d6 100%) no-repeat 4px 80px / 320px calc(100% - 114px),
+    #ece9d8;
+  /* moldura azul Luna */
+  box-shadow:
+    inset 4px 0 #0054e3,
+    inset -4px 0 #0054e3,
+    inset 0 -4px #0054e3,
+    0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* barra de título Luna */
+html[data-theme="xp"] .stage::before {
+  content: "Programas";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding-left: 52px;
+  border-radius: 10px 10px 0 0;
+  background:
+    url("assets/xp-controls.svg") no-repeat right 8px center,
+    url("assets/xp-folder.svg") no-repeat 12px center,
+    linear-gradient(180deg,
+      #0997ff 0%, #0053ee 8%, #0050ee 40%, #0066ff 88%,
+      #0066ff 93%, #005bff 95%, #003dd7 96%, #003dd7 100%);
+  color: #ffffff;
+  font-family: "Trebuchet MS", Tahoma, Verdana, Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 44px;
+  text-shadow: 1px 1px #0a1883;
+  white-space: nowrap;
+}
+
+/* barra de status com a contagem de objetos */
+html[data-theme="xp"] .stage::after {
+  content: counter(xp-apps) " objeto(s)";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  height: 30px;
+  padding-left: 14px;
+  border-top: 1px solid #c5c2b2;
+  background: #ece9d8;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+/* área de ícones (container de rolagem) */
+html[data-theme="xp"] .grid {
+  position: absolute;
+  top: 80px;
+  left: 324px;
+  right: 4px;
+  bottom: 34px;
+  width: auto;
+  max-width: none;
+  padding: 36px 20px;
+  background: #ffffff;
+  grid-template-columns: repeat(6, 186px);   /* main.js conta as colunas daqui */
+  grid-auto-rows: 170px;
+  gap: 18px;
+  justify-content: center;
+  justify-items: stretch;
+  align-content: start;
+  overflow: hidden;
+  scroll-padding: 36px;
+  scroll-behavior: smooth;
+}
+
+/* cores por posição para os ícones-letra (brilho "Luna") */
+html[data-theme="xp"] .tile:nth-child(8n+1) { --x1: #5aa2ff; --x2: #1450c8; }
+html[data-theme="xp"] .tile:nth-child(8n+2) { --x1: #7fd35a; --x2: #2e8b2e; }
+html[data-theme="xp"] .tile:nth-child(8n+3) { --x1: #ffbf5a; --x2: #e0701a; }
+html[data-theme="xp"] .tile:nth-child(8n+4) { --x1: #f47a6a; --x2: #bf2a1c; }
+html[data-theme="xp"] .tile:nth-child(8n+5) { --x1: #ae90e6; --x2: #5b3fae; }
+html[data-theme="xp"] .tile:nth-child(8n+6) { --x1: #5fd0e4; --x2: #1883a8; }
+html[data-theme="xp"] .tile:nth-child(8n+7) { --x1: #ffe066; --x2: #d19a00; }
+html[data-theme="xp"] .tile:nth-child(8n+8) { --x1: #c6ceda; --x2: #6f7a8a; }
+
+html[data-theme="xp"] .tile {
+  counter-increment: xp-apps;
+  width: auto;
+  height: auto;
+  border-radius: 6px;
+  background: transparent;
+  color: #000000;
+  gap: 10px;
+  outline: none;
+  transition: background 0.12s ease-out;
+}
+
+html[data-theme="xp"] .tile .icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-theme="xp"] .tile .fallback,
+html[data-theme="xp"] .tile.focus .fallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0) 51%),
+    linear-gradient(135deg, var(--x1, #5aa2ff) 0%, var(--x2, #1450c8) 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22), 0 3px 6px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  font-size: 50px;
+  font-weight: 700;
+  text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="xp"] .tile .label {
+  max-width: 180px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 20px;
+}
+
+/* foco: seleção azul do XP (fundo claro + aro + nome destacado) */
+html[data-theme="xp"] .tile.focus {
+  transform: none;
+  background: rgba(49, 106, 197, 0.14);
+  color: #000000;
+  outline: none;
+  box-shadow: inset 0 0 0 2px #316ac5;
+}
+
+html[data-theme="xp"] .tile.focus .label {
+  background: #316ac5;
+  color: #ffffff;
+}
+
+/* foco: sem filter no ícone (re-rasterizar o PNG a cada tecla era caro).
+   O destaque já fica no fundo azul + aro + nome destacado. */
+html[data-theme="xp"] .tile.focus .icon {
+  /* (sem filter de propósito — performance) */
+}
+
+html[data-theme="xp"] .empty {
+  position: absolute;
+  top: 420px;
+  left: 324px;
+  right: 0;
+  text-align: center;
+  font-size: 24px;
+  color: #444444;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dicas = painel "Controle remoto" no painel de tarefas              */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="xp"] .hintbar {
+  position: fixed;
+  left: 172px;
+  top: 140px;
+  width: 278px;
+  z-index: 2;
+  padding: 0 0 12px;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 6px 6px 0 0;
+  background: #d6dff7;
+  box-shadow: 0 0 0 1px #ffffff;
+  color: #215dc6;
+  font-size: 18px;
+}
+
+html[data-theme="xp"] .hintbar::before {
+  content: "Controle remoto";
+  display: block;
+  height: 36px;
+  margin-bottom: 10px;
+  padding-left: 14px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(90deg, #ffffff 0%, #c6d3f7 100%);
+  color: #215dc6;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 36px;
+}
+
+html[data-theme="xp"] .hintbar span {
+  display: block;
+  padding: 5px 14px 5px 38px;
+  position: relative;
+}
+
+html[data-theme="xp"] .hintbar span::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0, #7fb2ff 35%, #215dc6 100%);
+}
+
+/* ------------------------------------------------------------------ */
+/* Barra de tarefas (.topbar)                                         */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="xp"] .topbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  padding: 0;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(180deg,
+    #1f2f86 0, #3165c4 3%, #3682e5 6%, #4490e6 10%, #3883e5 12%,
+    #2b71e0 15%, #2663da 18%, #235bd6 20%, #2258d5 23%, #2157d6 38%,
+    #245ddb 54%, #2562df 86%, #245fdc 89%, #2158d4 92%, #1d4ec0 95%, #1941a5 98%);
+}
+
+/* botão verde = Dizen */
+html[data-theme="xp"] .brand {
+  display: flex;
+  align-items: center;
+  padding: 0 40px 2px 26px;
+  border-radius: 0 22px 22px 0;
+  background:
+    radial-gradient(ellipse 60% 90% at 30% 10%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%),
+    linear-gradient(180deg, #3c8f3c 0%, #5abd5a 10%, #48a648 35%, #3a923a 70%, #2f7f2f 100%);
+  box-shadow: inset 0 2px rgba(255, 255, 255, 0.35), 3px 0 6px rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-family: "Franklin Gothic Medium", "Trebuchet MS", Tahoma, Arial, sans-serif;
+  font-size: 31px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* botão de tarefa da janela aberta */
+html[data-theme="xp"] .topbar::before {
+  content: "Programas";
+  -webkit-box-ordinal-group: 2;
+  order: 1;
+  align-self: center;
+  width: 290px;
+  height: 42px;
+  margin-left: 16px;
+  padding-left: 48px;
+  border-radius: 4px;
+  background: url("assets/xp-folder.svg") no-repeat 10px center / 28px 28px, #1e52b7;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.55), inset -1px -1px 0 rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 19px;
+  line-height: 42px;
+  white-space: nowrap;
+}
+
+/* bandeja: engrenagem + relógio */
+html[data-theme="xp"] .topbar-right {
+  -webkit-box-ordinal-group: 3;
+  order: 2;
+  margin-left: auto;
+  gap: 14px;
+  padding: 0 24px 0 14px;
+  border-left: 1px solid #092e51;
+  background: linear-gradient(180deg,
+    #0c59b9 1%, #139ee9 6%, #18b5f2 10%, #139beb 14%, #1290e8 19%,
+    #0d8dea 63%, #0d9ff1 81%, #0f9eed 88%, #119be9 91%, #1392e2 94%,
+    #137ed7 97%, #095bc9 100%);
+  box-shadow: inset 1px 0 #18bbff;
+}
+
+html[data-theme="xp"] .gear {
+  -webkit-box-ordinal-group: 0;
+  order: -1;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 30px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  outline: none;
+}
+
+html[data-theme="xp"] .gear.focus {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 14px 2px rgba(255, 255, 255, 0.6);
+}
+
+html[data-theme="xp"] .brand {
+  --mark-body: #ffffff;
+  --mark-eye: #2f7f2f;
+}
+html[data-theme="xp"] .brand-word { display: none; }
+html[data-theme="xp"] .brand-text { display: inline; }
+html[data-theme="xp"] .brand-mascot {
+  width: 25px;
+  height: 34px;
+  margin-right: 10px;
+}
+
+html[data-theme="xp"] .clock {
+  color: #ffffff;
+  font-size: 22px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="xp"] .date {
+  left: auto;
+  right: 320px;
+  bottom: 19px;
+  color: #ffffff;
+  font-size: 16px;
+  text-shadow: 0 1px 2px #073665;
+}
+
+/* ------------------------------------------------------------------ */
+/* Aviso de abertura = balão da bandeja                               */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="xp"] .launch-status {
+  left: auto;
+  right: 40px;
+  bottom: 78px;
+  transform: none;
+  max-width: 560px;
+  padding: 16px 22px;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  background: #ffffe1;
+  color: #000000;
+  font-size: 20px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="xp"] .launch-status.error {
+  color: #a00000;
+}
+
+/* ------------------------------------------------------------------ */
+/* Configurações = janela de propriedades com abas                    */
+/* ------------------------------------------------------------------ */
+
+html[data-theme="xp"] .overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="xp"] .panel {
+  min-width: 760px;
+  padding: 0 4px 22px;
+  border-radius: 10px 10px 0 0;
+  background: #ece9d8;
+  color: #000000;
+  box-shadow:
+    inset 4px 0 #0054e3,
+    inset -4px 0 #0054e3,
+    inset 0 -4px #0054e3,
+    0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="xp"] .panel-title {
+  height: 44px;
+  margin: 0 -4px 18px;
+  padding-left: 52px;
+  border-radius: 10px 10px 0 0;
+  background:
+    url("assets/xp-controls.svg") no-repeat right 8px center,
+    url("assets/xp-folder.svg") no-repeat 12px center,
+    linear-gradient(180deg,
+      #0997ff 0%, #0053ee 8%, #0050ee 40%, #0066ff 88%,
+      #0066ff 93%, #005bff 95%, #003dd7 96%, #003dd7 100%);
+  color: #ffffff;
+  font-family: "Trebuchet MS", Tahoma, Verdana, Arial, sans-serif;
+  font-size: 23px;
+  line-height: 44px;
+  text-shadow: 1px 1px #0a1883;
+}
+
+html[data-theme="xp"] .settings-tabs {
+  gap: 2px;
+  margin: 0 22px;
+  padding: 0;
+}
+
+html[data-theme="xp"] .settings-tab {
+  flex: 0 0 auto;
+  padding: 8px 22px;
+  border: 1px solid #919b9c;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #ffffff 0%, #ecebe5 100%);
+  color: #000000;
+  font-size: 19px;
+}
+
+html[data-theme="xp"] .settings-tab.active {
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px;
+  border-top: 3px solid #ffc83c;
+  background: #fcfcfe;
+  font-weight: 700;
+}
+
+html[data-theme="xp"] .settings-list {
+  margin: 0 22px;
+  padding: 6px;
+  gap: 0;
+  border: 1px solid #7f9db9;
+  background: #ffffff;
+}
+
+html[data-theme="xp"] .theme-item {
+  padding: 9px 14px;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
+  font-size: 21px;
+  outline: none;
+}
+
+html[data-theme="xp"] .theme-item.focus {
+  background: #316ac5;
+  color: #ffffff;
+  outline: none;
+}
+
+html[data-theme="xp"] .theme-item.active::after {
+  color: #316ac5;
+}
+
+html[data-theme="xp"] .theme-item.focus.active::after {
+  color: #ffffff;
+}
+
+html[data-theme="xp"] .order-item.moving {
+  background: #ffc83c;
+  color: #000000;
+}
+
+html[data-theme="xp"] .panel-hint {
+  margin: 14px 22px 0;
+  color: #444444;
+  font-size: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="xp"] .grid { scroll-behavior: auto; }
+}
